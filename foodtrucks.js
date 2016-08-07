@@ -5,6 +5,8 @@ const https = require('https');
 
 exports.handler = function (event, context) {
     let url = 'https://offthegrid.com/otg-api/passthrough/markets/2.json/';
+
+    /** Make https call to get Off The Grid's event data */
     let xhr = https.get(url, function(res) {
         let resp = '';
 
@@ -18,12 +20,10 @@ exports.handler = function (event, context) {
         res.on('end', () => {
             let data = JSON.parse(resp);
             getFoodTrucks(data.MarketDetail.Events[0]);
-            console.log(data);
         });
     }).on('error', (error) => {
       console.log(`Received error: ${error}`);
     });
-
 
     /** Collection of strings to be used as copy */
     const STRINGS = {
@@ -36,6 +36,7 @@ exports.handler = function (event, context) {
     /**
      * Transform day from Date object into human-readable string
      * @param {number} day - Current day from Date object
+     * @return {string} weekdays - Current day in string format
      */
     function getCurrentDay(day) {
         let weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
@@ -45,8 +46,10 @@ exports.handler = function (event, context) {
     }
 
     /**
-     * Loop through each vendor and create vendor list string
-     * @params {array} vendors - List of vendors from the API
+     * createVendorsList - Loop through each vendor and create vendor list string
+     * @param {array} vendors - List of vendors from the API
+     * @param {string} truckList - List of the day's food trucks to be compiled
+     * @return {string} truckList - Compiled list of day's food trucks
      */
     function createVendorsList(vendors, truckList) {
         vendors.forEach((vendor) => {
@@ -65,8 +68,9 @@ exports.handler = function (event, context) {
     }
 
   /**
-   * Get today's food trucks from Off The Grid, and format the text output accordingly
-   * @params {object} events - The first event returned from the API
+   * getFoodTrucks - Get today's food trucks from Off The Grid, and format the text output accordingly
+   * @param {object} events - The first event returned from the API
+   * @return {object} todaysTrucks - Strings in Slack-approved formatted Object (via context.succeed)
    */
   function getFoodTrucks(events) {
     let date = new Date(),
@@ -96,7 +100,7 @@ exports.handler = function (event, context) {
 
     todaysTrucks.response_type = 'in_channel';
 
-    // Return food trucks
+    // Display strings in Slack-approved Object format
     context.succeed(todaysTrucks);
   }
 };
