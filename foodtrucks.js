@@ -7,7 +7,10 @@ exports.handler = function (event, context) {
     let url = 'https://offthegrid.com/otg-api/passthrough/markets/2.json/';
     let xhr = https.get(url, function(res) {
         let resp = '';
-        console.log(`Got response: ${res.statusCode}`);
+
+        console.log(`Received response: ${res.statusCode}`);
+        console.log(`Received headers: ${res.headers}`);
+
         res.on('data', function(chunk) {
             resp += chunk.toString();
         });
@@ -17,8 +20,9 @@ exports.handler = function (event, context) {
             getFoodTrucks(data.MarketDetail.Events[0]);
             console.log(data);
         });
+    }).on('error', (error) => {
+      console.log(`Received error: ${error}`);
     });
-
 
 
     /** Collection of strings to be used as copy */
