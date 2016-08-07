@@ -1,56 +1,64 @@
+'use strict';
 'use latest';
 
-const request = require('request');
+const https = require('https');
 
-module.exports = (cb) => {
-  let url = 'https://offthegrid.com/otg-api/passthrough/markets/2.json/';
-  request.get(url, function(error, response, body) {
-    if (error) {
-      cb(null, error);
-    } else {
-      let data = JSON.parse(body);
-      getFoodTrucks(data.MarketDetail.Events[0]);
-    }
-  });
+exports.handler = function (event, context) {
+    let url = 'https://offthegrid.com/otg-api/passthrough/markets/2.json/';
+    let xhr = https.get(url, function(res) {
+        let resp = '';
+        console.log(`Got response: ${res.statusCode}`);
+        res.on('data', function(chunk) {
+            resp += chunk.toString();
+        });
 
-  /** Collection of strings to be used as copy */
-  const STRINGS = {
-    offDay: 'No food trucks today.',
-    closed: 'Food trucks are closed. ☹️',
-    isThursday: 'Roli Roti (Rotisserie Chicken, Porchetta) at the Ferry Building!',
-    foodTrucks: 'Food trucks for'
-  };
-
-  /**
-   * Transform day from Date object into human-readable string
-   * @param {number} day - Current day from Date object
-   */
-  function getCurrentDay(day) {
-    let weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        today = day - 1;
-
-    return weekdays[today];
-  };
-
-  /**
-   * Loop through each vendor and create vendor list string
-   * @params {array} vendors - List of vendors from the API
-   */
-  function createVendorsList(vendors, truckList) {
-    vendors.forEach((vendor) => {
-      let name = vendor.name,
-          cuisine = vendor.cuisine,
-          totalVendors = vendors.length - 1;
-
-      if (vendor !== vendors[totalVendors]) {
-        truckList += `${name} (${cuisine}), `;
-      } else {
-        truckList += `and ${name} (${cuisine}).`;
-      }
+        res.on('end', () => {
+            let data = JSON.parse(resp);
+            getFoodTrucks(data.MarketDetail.Events[0]);
+            console.log(data);
+        });
     });
 
-    return truckList;
-  };
+
+
+    /** Collection of strings to be used as copy */
+    const STRINGS = {
+        offDay: 'No food trucks today.',
+        closed: 'Food trucks are closed. ☹️',
+        isThursday: 'Roli Roti (Rotisserie Chicken, Porchetta) at the Ferry Building!',
+        foodTrucks: 'Food trucks for'
+    };
+
+    /**
+     * Transform day from Date object into human-readable string
+     * @param {number} day - Current day from Date object
+     */
+    function getCurrentDay(day) {
+        let weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            today = day - 1;
+
+        return weekdays[today];
+    }
+
+    /**
+     * Loop through each vendor and create vendor list string
+     * @params {array} vendors - List of vendors from the API
+     */
+    function createVendorsList(vendors, truckList) {
+        vendors.forEach((vendor) => {
+          let name = vendor.name,
+              cuisine = vendor.cuisine,
+              totalVendors = vendors.length - 1;
+
+          if (vendor !== vendors[totalVendors]) {
+            truckList += `${name} (${cuisine}), `;
+          } else {
+            truckList += `and ${name} (${cuisine}).`;
+          }
+        });
+
+        return truckList;
+    }
 
   /**
    * Get today's food trucks from Off The Grid, and format the text output accordingly
@@ -84,7 +92,7 @@ module.exports = (cb) => {
 
     todaysTrucks.response_type = 'in_channel';
 
-
-    cb(null, todaysTrucks);
+    // Return food trucks
+    context.succeed(todaysTrucks);
   }
 };
