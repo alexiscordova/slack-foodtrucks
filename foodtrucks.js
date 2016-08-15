@@ -1,3 +1,8 @@
+/**
+ * foodtrucks.js – A Slack slash command that displays the weekly schedule Off the Grid food trucks
+ * at Vallejo and Front Street. Originally created for Questus.
+ */
+
 'use strict';
 'use latest';
 
@@ -47,8 +52,8 @@ exports.handler = function (event, context) {
 
     /**
      * createVendorsList - Loop through each vendor and create vendor list string
-     * @param {array} vendors - List of vendors from the API
-     * @param {string} truckList - List of the day's food trucks to be compiled
+     * @param {array} vendors - List of vendors from Off the Grid
+     * @param {string} truckList - List of the day's to-be-compiled food trucks
      * @return {string} truckList - Compiled list of day's food trucks
      */
     function createVendorsList(vendors, truckList) {
@@ -70,7 +75,7 @@ exports.handler = function (event, context) {
   /**
    * getFoodTrucks - Get today's food trucks from Off The Grid, and format the text output accordingly
    * @param {object} events - The first event returned from the API
-   * @return {object} todaysTrucks - Strings in Slack-approved formatted Object (via context.succeed)
+   * @return {object} todaysTrucks - Strings in Slack-formatted Object (via context.succeed)
    */
   function getFoodTrucks(events) {
     let date = new Date(),
@@ -83,11 +88,13 @@ exports.handler = function (event, context) {
 
     truckList = createVendorsList(vendors, truckList);
 
+    // Create data structures for Slack Object formating
     if ((nextEventDay !== today) || (today === 'Thursday')) {
       todaysTrucks.attachments = [];
       todaysTrucks.attachments[0] = {};
     }
 
+    // Structure strings in the format Slack expects
     if (today === 'Thursday') {
       todaysTrucks.text = `${STRINGS.isThursday}`;
       todaysTrucks.attachments[0].text = truckList;
@@ -98,6 +105,8 @@ exports.handler = function (event, context) {
       todaysTrucks.text = truckList;
     }
 
+    // Display food truck string in the channel
+    // https://api.slack.com/slash-commands#responding_to_a_command
     todaysTrucks.response_type = 'in_channel';
 
     // Display strings in Slack-approved Object format
