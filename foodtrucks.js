@@ -8,19 +8,19 @@
 
 const https = require('https');
 
-exports.handler = function (event, context) {
+exports.handler = (event, context) => {
     let url = 'https://offthegrid.com/otg-api/passthrough/markets/2.json/';
 
     /** Make https call to get Off The Grid's event data */
-    let xhr = https.get(url, function(res) {
-        let resp = '';
+    let xhr = https.get(url, (res) => {
+      let resp = '';
 
         console.log(`Received response: ${res.statusCode}`);
         console.log(`Received headers: ${res.headers}`);
 
-        res.on('data', function(chunk) {
-            resp += chunk.toString();
-        });
+      res.on('data', (chunk) => {
+        resp += chunk.toString();
+      });
 
         res.on('end', () => {
             let data = JSON.parse(resp);
