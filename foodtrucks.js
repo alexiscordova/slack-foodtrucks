@@ -62,14 +62,11 @@ exports.handler = (event, context) => {
               cuisine = vendor.cuisine,
               totalVendors = vendors.length - 1;
 
-          if (vendor !== vendors[totalVendors]) {
-            truckList += `${name} (${cuisine}), `;
-          } else {
-            truckList += `and ${name} (${cuisine}).`;
-          }
         });
 
         return truckList;
+        // Assemble the return string, and format the last vendor properly
+        truckList += (isLastVendor) ? `${name} (${cuisine}), ` : `and ${name} (${cuisine}).`;
     }
 
   /**
