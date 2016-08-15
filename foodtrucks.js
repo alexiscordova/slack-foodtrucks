@@ -15,27 +15,27 @@ exports.handler = (event, context) => {
     let xhr = https.get(url, (res) => {
       let resp = '';
 
-        console.log(`Received response: ${res.statusCode}`);
-        console.log(`Received headers: ${res.headers}`);
+      console.log(`Received response: ${res.statusCode}`);
+      console.log(`Received headers: ${res.headers}`);
 
       res.on('data', (chunk) => {
         resp += chunk.toString();
       });
 
-        res.on('end', () => {
-            let data = JSON.parse(resp);
-            getFoodTrucks(data.MarketDetail.Events[0]);
-        });
+      res.on('end', () => {
+        let data = JSON.parse(resp);
+        getFoodTrucks(data.MarketDetail.Events[0]);
+      });
     }).on('error', (error) => {
       console.log(`Received error: ${error}`);
     });
 
     /** Collection of strings to be used as copy */
     const STRINGS = {
-        offDay: 'No food trucks today.',
-        closed: 'Food trucks are closed. ☹️',
-        isThursday: 'Roli Roti (Rotisserie Chicken, Porchetta) at the Ferry Building!',
-        foodTrucks: 'Food trucks for'
+      offDay: 'No food trucks today.',
+      closed: 'Food trucks are closed. ☹️',
+      isThursday: 'Roli Roti (Rotisserie Chicken, Porchetta) at the Ferry Building!',
+      foodTrucks: 'Food trucks for'
     };
 
     /**
@@ -44,10 +44,10 @@ exports.handler = (event, context) => {
      * @return {string} weekdays - Current day in string format
      */
     function getCurrentDay(day) {
-        let weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-            today = day - 1;
+      let weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        today = day - 1;
 
-        return weekdays[today];
+      return weekdays[today];
     }
 
     /**
@@ -57,16 +57,17 @@ exports.handler = (event, context) => {
      * @return {string} truckList - Compiled list of day's food trucks
      */
     function createVendorsList(vendors, truckList) {
-        vendors.forEach((vendor) => {
-          let name = vendor.name,
-              cuisine = vendor.cuisine,
-              totalVendors = vendors.length - 1;
+      vendors.forEach((vendor) => {
+        let name = vendor.name,
+          cuisine = vendor.cuisine,
+          totalVendors = vendors.length - 1,
+          isLastVendor = vendor !== vendors[totalVendors];
 
-        });
-
-        return truckList;
         // Assemble the return string, and format the last vendor properly
         truckList += (isLastVendor) ? `${name} (${cuisine}), ` : `and ${name} (${cuisine}).`;
+      });
+
+      return truckList;
     }
 
   /**
@@ -76,12 +77,12 @@ exports.handler = (event, context) => {
    */
   function getFoodTrucks(events) {
     let date = new Date(),
-        day = date.getDay(),
-        nextEventDay = events.Event.day_of_week,
-        vendors = events.Vendors,
-        today = getCurrentDay(day),
-        truckList = `${STRINGS.foodTrucks} ${nextEventDay}: `,
-        todaysTrucks = {};
+      day = date.getDay(),
+      nextEventDay = events.Event.day_of_week,
+      vendors = events.Vendors,
+      today = getCurrentDay(day),
+      truckList = `${STRINGS.foodTrucks} ${nextEventDay}: `,
+      todaysTrucks = {};
 
     truckList = createVendorsList(vendors, truckList);
 
