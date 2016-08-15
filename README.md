@@ -31,4 +31,4 @@ Depending on the time (e.g., the food trucks are closed) or the day (e.g., there
 ```
 
 ## License
-MIT, or whatever is best to allow you to do whatever you want with this.
+[MIT](https://github.com/alexiscordova/slack-foodtrucks/blob/master/LICENSE.md), or whatever is best to allow you to do whatever you want with this.
